@@ -338,10 +338,10 @@ if __name__ == "__main__":
         for curr_date in date_list:
             print(curr_date)
             # Checks if the folder with the date name exists. Can be updated to work with LIGO cluster folders
-            if not os.path.exists(f"Hanford\\{curr_date}"):
-                print(f"Hanford\\{curr_date} folder does not exist, continuing to next date...")
+            if not os.path.exists(f"{curr_date}"):
+                print(f"{curr_date} folder does not exist, continuing to next date...")
                 continue
-            combs, counts, chans = combs_counts_analysis(f'Hanford\\{curr_date}\\autolines_annotated_only.txt', f'Hanford\\{curr_date}\\coh_matrix.npz')
+            combs, counts, chans = combs_counts_analysis(f'{curr_date}\\autolines_annotated_only.txt', f'{curr_date}\\coh_matrix.npz')
             
             # Checks if the container DataFrame is currently empty. If so, reinitializes it to the first set of data
             if total_df.size == 0:
@@ -394,7 +394,7 @@ if __name__ == "__main__":
         # aside from some fringe issues when the in-built dependents are changed
         case "Single Day":
             date_folder = input("Type in the date in ISO format: ")
-            combs, counts, chans = combs_counts_analysis(f'Hanford\\{date_folder}\\autolines_annotated_only.txt', f'Hanford\\{date_folder}\\coh_matrix.npz')
+            combs, counts, chans = combs_counts_analysis(f'{date_folder}\\autolines_annotated_only.txt', f'{date_folder}\\coh_matrix.npz')
             heatmap(combs, counts.T, chans, 'day', date_folder)
         
         # Gave a heatmap once, hasn't worked since. Thinking I need to rework it to
