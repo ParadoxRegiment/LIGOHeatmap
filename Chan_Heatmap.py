@@ -7,7 +7,6 @@ from datetime import date
 import sys
 import argparse
 from pathlib import Path
-import inquirer
 import json
 
 autolines_path_template = './Hanford/{date_folder}/autolines_annotated_only.txt'
@@ -36,6 +35,12 @@ def get_args():
             '--fmax', type=float,
             default=-1,
             help='Maximum frequency that will be put into the heatmap')
+    
+    parser.add_argument(
+            '--show',
+            action='store_true',
+            help='Display the heatmap after saving it.'
+    )
 
     args = parser.parse_args()
 
@@ -405,7 +410,7 @@ def heatmap(combs : list, counts : np.ndarray, chans : list,  dataset_type : str
                 "Generation Date" : str(date.today()),
                 "Heatmap Date(s)" : log_date,
                 "Selected Frequency Range" : subtitle,
-                "Selected Combs" : combs,
+                "Selected Combs" : [float(c) for c in combs],
                 "Missing Dates" : missing_dates
                 }
     print(log_dict)
@@ -575,7 +580,13 @@ def main(args=None):
         #print(args)
 
     if args.interactive == True:
+        try:
+            import inquirer
+        except (ImportError, NotImplementedError):
+            raise SystemExit("Interactive mode needs a real terminal. Use -r instead, e.g. -r 20231230")
         interactive_prompts(args.fmin, args.fmax)
+    elif args.range is None:
+        raise SystemExit("Pass one date (-r 20231230) or a start and end date (-r 20231225 20231230), or use -i")
     else:
         if len(args.range) == 1:
             combs, counts, chans = combs_counts_analysis(
@@ -586,10 +597,6 @@ def main(args=None):
                     'day',
                     args.fmin, args.fmax,
                     output_name = args.range[0])
-        elif args.range is None:
-            raise Exception(
-                "No date was passed into the --range argument when --interactive was not called."
-            )
         else:
             file_list = pd.date_range(args.range[0], args.range[1]).strftime("%Y%m%d").tolist()
 
@@ -599,6 +606,9 @@ def main(args=None):
                     'multi-day',
                     args.fmin, args.fmax, missing_dates,
                     file_list)
+    
+    if args.show:
+        plt.show()
     
 if __name__ == "__main__":
     main()
